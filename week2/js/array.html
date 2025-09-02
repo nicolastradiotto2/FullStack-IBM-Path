@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista della spesa</title>
+</head>
+<body>
+    <h1>Lista della spesa</h1>
+    <p>Apri la console (F12 -> Console) per vedere i risultati.</p>
+
+    <script>
+        let spesa = ["latte", "pane", "uova"];
+
+        console.log("Lista iniziale:", spesa);
+
+        spesa.push("Pasta"); // aggiunge alla fine
+        console.log("Dopo push:", spesa);
+
+        spesa.pop();  // rimuove l'ultimo elemento
+        console.log("Dopo pop:", spesa);
+
+        spesa.unshift("acqua"); // aggiunge all'inizio
+        console.log("Dopo unshift:", spesa);
+
+        spesa.shift(); // rimuove il primo elemento
+        console.log("Dopo shift:", spesa);
+
+        console.log("Numero di elementi", spesa.length);
+
+        console.log("Scorro la lista:");
+        for(let i = 0; i < spesa.length; i++){
+            console.log(i, spesa[i]);
+        }
+    </script>
+</body>
+</html>
