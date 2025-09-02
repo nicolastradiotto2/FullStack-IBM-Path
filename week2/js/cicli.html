@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Esercizi Cicli</title>
+</head>
+<body>
+  <h1>Esercizi sui Cicli</h1>
+  <p>Guarda la console (F12 → Console).</p>
+
+  <script>
+    // 1. Stampare i numeri pari da 1 a 50
+    console.log("Numeri pari da 1 a 50:");
+    for (let i = 1; i <= 50; i++) {
+      if (i % 2 === 0) {
+        console.log(i);
+      }
+    }
+
+    // 2. Sommare i numeri di un array
+    let numeri = [5, 10, 15, 20];
+    let somma = 0;
+
+    for (let i = 0; i < numeri.length; i++) {
+      somma += numeri[i];
+    }
+    console.log("Somma con for:", somma);
+
+    // 3. Somma con for...of
+    somma = 0;
+    for (let num of numeri) {
+      somma += num;
+    }
+    console.log("Somma con for...of:", somma);
+
+    // 4. Somma con forEach
+    somma = 0;
+    numeri.forEach(num => somma += num);
+    console.log("Somma con forEach:", somma);
+  </script>
+</body>
+</html>
