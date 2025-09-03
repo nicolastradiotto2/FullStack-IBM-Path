@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>To-Do List con LocalStorage</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    li.completed { text-decoration: line-through; color: gray; }
+  </style>
+</head>
+<body>
+  <h1>To-Do List (salvata nel browser)</h1>
+
+  <!-- Casella di testo + bottone -->
+  <input type="text" id="taskInput" placeholder="Scrivi un task...">
+  <button id="addTask">Aggiungi</button>
+
+  <!-- Qui compariranno i task -->
+  <ul id="taskList"></ul>
+
+  <script>
+    // Prendo gli elementi HTML che mi servono
+    const input = document.querySelector("#taskInput");
+    const addBtn = document.querySelector("#addTask");
+    const list = document.querySelector("#taskList");
+
+    // 1️⃣ All’avvio: prendo i dati dal localStorage
+    // Se non c’è nulla, creo un array vuoto
+    let tasks = localStorage.getItem("tasks")
+      ? JSON.parse(localStorage.getItem("tasks"))
+      : [];
+
+    // 2️⃣ Funzione che disegna la lista sullo schermo
+    function mostraLista() {
+      list.innerHTML = ""; // pulisco la lista
+      tasks.forEach((task, index) => {
+        // creo un <li> per ogni task
+        const li = document.createElement("li");
+        li.textContent = task.text;
+
+        // se il task è completato → aggiungo la classe
+        if (task.done) {
+          li.classList.add("completed");
+        }
+
+        // cliccando sul task → lo segno come fatto/non fatto
+        li.addEventListener("click", () => {
+          tasks[index].done = !tasks[index].done; // inverto true/false
+          salvaLista();
+        });
+
+        // bottone elimina
+        const elimina = document.createElement("button");
+        elimina.textContent = "❌";
+        elimina.addEventListener("click", () => {
+          tasks.splice(index, 1); // tolgo l’elemento dall’array
+          salvaLista();
+        });
+
+        // aggiungo bottone dentro il li
+        li.appendChild(elimina);
+
+        // metto il li dentro la lista
+        list.appendChild(li);
+      });
+    }
+
+    // 3️⃣ Funzione per salvare nel localStorage
+    function salvaLista() {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+      mostraLista(); // ridisegno la lista aggiornata
+    }
+
+    // 4️⃣ Funzione per aggiungere un nuovo task
+    function aggiungiTask() {
+      if (input.value.trim() === "") return; // se vuoto → non fare nulla
+
+      // aggiungo all’array un nuovo oggetto {testo, stato}
+      tasks.push({ text: input.value, done: false });
+      input.value = ""; // svuoto la casella
+      salvaLista();     // salvo e aggiorno la lista
+    }
+
+    // 5️⃣ Eventi
+    addBtn.addEventListener("click", aggiungiTask);
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") aggiungiTask();
+    });
+
+    // 6️⃣ Quando apro la pagina → mostro la lista già salvata
+    mostraLista();
+  </script>
+</body>
+</html>
