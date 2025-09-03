@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Calcolatrice JS</title>
+</head>
+<body>
+  <h1>Calcolatrice</h1>
+
+  <input type="number" id="num1" placeholder="Numero 1">
+  <input type="number" id="num2" placeholder="Numero 2">
+  <br><br>
+
+  <button onclick="somma()">➕ Somma</button>
+  <button onclick="sottrai()">➖ Sottrai</button>
+  <button onclick="moltiplica()">✖️ Moltiplica</button>
+  <button onclick="dividi()">➗ Dividi</button>
+
+  <h2 id="risultato">Risultato: </h2>
+
+  <script>
+    function getInput() {
+      let a = parseFloat(document.querySelector("#num1").value);
+      let b = parseFloat(document.querySelector("#num2").value);
+      return [a, b];
+    }
+
+    function somma() {
+      let [a, b] = getInput();
+      document.querySelector("#risultato").innerText = "Risultato: " + (a + b);
+    }
+
+    function sottrai() {
+      let [a, b] = getInput();
+      document.querySelector("#risultato").innerText = "Risultato: " + (a - b);
+    }
+
+    const moltiplica = () => {
+      let [a, b] = getInput();
+      document.querySelector("#risultato").innerText = "Risultato: " + (a * b);
+    };
+
+    const dividi = () => {
+      let [a, b] = getInput();
+      if (b === 0) {
+        document.querySelector("#risultato").innerText = "Errore: divisione per 0!";
+      } else {
+        document.querySelector("#risultato").innerText = "Risultato: " + (a / b);
+      }
+    };
+  </script>
+</body>
+</html>
