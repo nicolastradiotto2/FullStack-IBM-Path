@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Array di Oggetti - studenti</title>
+</head>
+<body>
+    <h1>Gestione Studenti</h1>
+    <p>Guarda la console (F12 → Console).</p>
+
+    <script>
+        let studenti = [
+        { nome: "Nicola", eta: 22, voto: 28 },
+        { nome: "Sara", eta: 24, voto: 30 },
+        { nome: "Marco", eta: 21, voto: 25 }  
+        ];
+
+    console.log("Elenco studendi:");
+    studenti.forEach(s => console.log(`${s.nome} (${s.eta} anni) → voto: ${s.voto}`));
+
+    let migliore = studenti[0];
+    for (let s of studenti){
+        if(s.voto > migliore.voto){
+            migliore = s;
+        }
+    }
+
+     console.log("Miglior studente:", migliore.nome, "con voto", migliore.voto);
+    </script>
+</body>
+</html>
