@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Oggetti js - Scheda auto</title>
+</head>
+<body>
+    <h1>Oggetti in javascript</h1>
+    <p>Guarda la console (F12 -> Console)</p>
+
+    <script>
+        let auto = {
+            marca: "Peugeot",
+            modello: "308 PHEV",
+            anno: 2023,
+            cavalli: 180,
+
+            //Metodo che descrive l'auto
+            descrizione: function(){
+                 return `${this.marca} ${this.modello} (${this.anno}) - ${this.cavalli} CV`;
+            }
+
+        };
+
+        console.log("Scheda auto: ",auto);
+        console.log("Modello: ",auto.modello);
+        console.log("Descrizione: ",auto.descrizione);
+
+        //aggiungi proprietà        
+        auto.colore = "Blu";
+        console.log("Dopo aver aggiunto il colore: ",auto);
+
+        delete auto.cavalli;
+        console.log("Dopo aver eliminato cavalli: ",auto);
+
+    </script>
+</body>
+</html>
