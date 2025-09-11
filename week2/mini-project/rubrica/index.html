@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Contacalorie</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; }
+    h1 { text-align: center; }
+    .row { display: flex; gap: 8px; margin-bottom: 12px; }
+    input { flex: 1; padding: 8px; }
+    button { padding: 8px 12px; cursor: pointer; }
+    ul { list-style: none; padding: 0; }
+    li { display: flex; justify-content: space-between; align-items: center;
+         background:#fff; border:1px solid #ddd; padding: 8px; margin: 6px 0; border-radius: 6px; }
+    .totale { font-size: 1.2rem; text-align: right; margin-top: 12px; }
+    .small { color:#666; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <h1>Contacalorie</h1>
+
+  <div class="row">
+    <input id="alimento" type="text" placeholder="Alimento (es. Riso 100g)" />
+    <input id="kcal" type="number" min="0" step="1" placeholder="kcal" />
+    <button id="add">Aggiungi</button>
+  </div>
+  <p class="small">Tip: premi Invio per aggiungere velocemente.</p>
+
+  <ul id="lista"></ul>
+  <div class="totale">Totale: <span id="tot">0</span> kcal</div>
+
+  <script>
+    const $ = s => document.querySelector(s);
+    const KEY = "contacalorieV1";
+    let voci = JSON.parse(localStorage.getItem(KEY)) || [];
+
+    const alimento = $("#alimento");
+    const kcal = $("#kcal");
+    const add = $("#add");
+    const lista = $("#lista");
+    const tot = $("#tot");
+
+    function salva() {
+      localStorage.setItem(KEY, JSON.stringify(voci));
+      render();
+    }
+
+    function calcolaTotale() {
+      return voci.reduce((acc, v) => acc + v.kcal, 0);
+    }
+
+    function render() {
+      lista.innerHTML = "";
+      voci.forEach((v, i) => {
+        const li = document.createElement("li");
+        li.textContent = `${v.alimento} — ${v.kcal} kcal`;
+
+        const del = document.createElement("button");
+        del.textContent = "❌";
+        del.addEventListener("click", () => {
+          voci.splice(i, 1);
+          salva();
+        });
+
+        li.appendChild(del);
+        lista.appendChild(li);
+      });
+      tot.textContent = calcolaTotale();
+    }
+
+    function aggiungi() {
+      const a = alimento.value.trim();
+      const k = parseInt(kcal.value, 10);
+      if (!a || isNaN(k) || k < 0) return;
+
+      voci.push({ alimento: a, kcal: k });
+      alimento.value = "";
+      kcal.value = "";
+      salva();
+    }
+
+    add.addEventListener("click", aggiungi);
+    [alimento, kcal].forEach(inp => inp.addEventListener("keypress", e => {
+      if (e.key === "Enter") aggiungi();
+    }));
+
+    render();
+  </script>
+</body>
+</html>

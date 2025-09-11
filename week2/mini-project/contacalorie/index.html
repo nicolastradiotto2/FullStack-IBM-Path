@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Contacalorie (semplice e robusto)</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 640px; margin: 30px auto; }
+    h1 { text-align: center; }
+    .riga { display: flex; gap: 8px; margin-bottom: 12px; }
+    input { flex: 1; padding: 8px; }
+    button { padding: 8px 12px; cursor: pointer; }
+    ul { list-style: none; padding: 0; }
+    li { display: flex; justify-content: space-between; align-items: center;
+         background:#fff; border:1px solid #ddd; padding:8px; margin:6px 0; border-radius:6px; }
+    .totale { font-size: 1.2rem; text-align: right; margin-top: 12px; }
+    .hint { color:#666; font-size:.9rem; }
+  </style>
+</head>
+<body>
+  <h1>Contacalorie</h1>
+
+  <!-- FORM: così funziona anche con Invio -->
+  <form id="form" class="riga" autocomplete="off">
+    <input id="campoAlimento" type="text" placeholder="Alimento (es. Riso 100g)" required />
+    <input id="campoKcal" type="text" placeholder="kcal (es. 250 o 250,5)" required />
+    <button id="btnAggiungi" type="submit">Aggiungi</button>
+  </form>
+  <p class="hint">Tip: puoi scrivere le calorie con virgola o punto.</p>
+
+  <ul id="listaVoci"></ul>
+  <div class="totale">Totale: <span id="totKcal">0</span> kcal</div>
+
+  <script>
+    (function () {
+      const $ = s => document.querySelector(s);
+      const CHIAVE = "contacalorieSemplice";
+
+      const lista   = $("#listaVoci");
+      const alimento = $("#campoAlimento");
+      const kcal     = $("#campoKcal");
+      const totKcal  = $("#totKcal");
+      const form     = $("#form");
+
+      // Carico in sicurezza dal localStorage
+      let voci = [];
+      try { voci = JSON.parse(localStorage.getItem(CHIAVE) || "[]"); }
+      catch { voci = []; }
+
+      function salva() {
+        try { localStorage.setItem(CHIAVE, JSON.stringify(voci)); } catch {}
+        disegna();
+      }
+
+      // Accetta "250", "250.5", "250,5"
+      function parseKcal(str) {
+        if (typeof str !== "string") return NaN;
+        const cleaned = str.replace(",", ".").trim();
+        const val = Number(cleaned);
+        return Number.isFinite(val) ? Math.round(val) : NaN; // arrotondo all'intero
+      }
+
+      function totale() {
+        return voci.reduce((acc, v) => acc + v.kcal, 0);
+      }
+
+      function disegna() {
+        lista.innerHTML = "";
+        voci.forEach((v, i) => {
+          const li = document.createElement("li");
+          li.textContent = `${v.alimento} — ${v.kcal} kcal`;
+
+          const btnX = document.createElement("button");
+          btnX.type = "button";
+          btnX.textContent = "❌";
+          btnX.addEventListener("click", () => {
+            voci.splice(i, 1);
+            salva();
+          });
+
+          li.appendChild(btnX);
+          lista.appendChild(li);
+        });
+        totKcal.textContent = totale();
+      }
+
+      // Unico entry-point: submit del form (click o Invio)
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const a = alimento.value.trim();
+        const k = parseKcal(kcal.value);
+        if (!a || !Number.isFinite(k) || k < 0) return;
+
+        voci.push({ alimento: a, kcal: k });
+        form.reset();
+        salva();
+      });
+
+      disegna();
+    })();
+  </script>
+</body>
+</html>
