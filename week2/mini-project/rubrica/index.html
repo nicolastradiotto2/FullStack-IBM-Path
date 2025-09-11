@@ -2,9 +2,9 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>Contacalorie</title>
+  <title>Rubrica Contatti</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; }
+    body { font-family: Arial, sans-serif; max-width: 640px; margin: 30px auto; }
     h1 { text-align: center; }
     form { display: flex; gap: 8px; margin-bottom: 12px; }
     input { flex: 1; padding: 8px; }
@@ -12,56 +12,58 @@
     ul { list-style: none; padding: 0; margin: 0; }
     li { display: flex; justify-content: space-between; align-items: center;
          background:#fff; border:1px solid #ddd; padding:8px; margin:6px 0; border-radius:6px; }
-    .totale { text-align: right; font-weight: bold; margin-top: 10px; }
+    .hint { color:#666; font-size:.9rem; margin: 6px 0 0; }
   </style>
 </head>
 <body>
-  <h1>Contacalorie</h1>
+  <h1>Rubrica contatti</h1>
 
   <form id="form" autocomplete="off">
-    <input id="alimento" placeholder="Alimento (es. Riso 100g)" required />
-    <input id="kcal" placeholder="kcal (es. 250 o 250,5)" required />
+    <input id="nome" placeholder="Nome" required />
+    <input id="tel"  placeholder="Telefono (es. 3331234567)" required />
     <button type="submit">Aggiungi</button>
   </form>
+  <p class="hint">Clicca su un contatto per copiarlo.</p>
 
   <ul id="lista"></ul>
-  <div class="totale">Totale: <span id="tot">0</span> kcal</div>
 
   <script>
-    const key   = "contacalorie";
+    const key   = "rubrica";
     const form  = document.getElementById("form");
-    const alim  = document.getElementById("alimento");
-    const kcal  = document.getElementById("kcal");
+    const nome  = document.getElementById("nome");
+    const tel   = document.getElementById("tel");
     const lista = document.getElementById("lista");
-    const tot   = document.getElementById("tot");
 
-    let voci = JSON.parse(localStorage.getItem(key) || "[]");
+    let contatti = JSON.parse(localStorage.getItem(key) || "[]");
 
     function salva() {
-      localStorage.setItem(key, JSON.stringify(voci));
+      localStorage.setItem(key, JSON.stringify(contatti));
       disegna();
     }
 
     function disegna() {
       lista.innerHTML = "";
-      voci.forEach((v, i) => {
+      contatti.forEach((c, i) => {
         const li = document.createElement("li");
-        li.textContent = `${v.a} — ${v.k} kcal`;
+        li.textContent = `${c.n} — ${c.t}`;
+        li.title = "Copia nome e numero";
+        li.onclick = async () => { try { await navigator.clipboard.writeText(`${c.n} ${c.t}`); } catch {} };
+
         const x = document.createElement("button");
         x.textContent = "❌";
-        x.onclick = () => { voci.splice(i, 1); salva(); };
+        x.onclick = (e) => { e.stopPropagation(); contatti.splice(i, 1); salva(); };
+
         li.appendChild(x);
         lista.appendChild(li);
       });
-      tot.textContent = voci.reduce((s, v) => s + v.k, 0);
     }
 
     form.onsubmit = (e) => {
       e.preventDefault();
-      const a = alim.value.trim();
-      const k = Math.round(Number(kcal.value.replace(",", ".")));
-      if (!a || !Number.isFinite(k) || k < 0) return;
-      voci.push({ a, k });
+      const n = nome.value.trim();
+      const t = tel.value.trim();
+      if (!n || !t) return;            // minimo indispensabile
+      contatti.push({ n, t });
       form.reset();
       salva();
     };
