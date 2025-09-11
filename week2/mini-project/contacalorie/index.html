@@ -2,101 +2,71 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>Contacalorie (semplice e robusto)</title>
+  <title>Contacalorie</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 640px; margin: 30px auto; }
+    body { font-family: Arial, sans-serif; max-width: 640px; margin: 32px auto; }
     h1 { text-align: center; }
-    .riga { display: flex; gap: 8px; margin-bottom: 12px; }
-    input { flex: 1; padding: 8px; }
-    button { padding: 8px 12px; cursor: pointer; }
-    ul { list-style: none; padding: 0; }
+    .row { display: flex; gap: 8px; margin: 12px 0; }
+    input { flex: 1; padding: 10px; }
+    button { padding: 10px 14px; cursor: pointer; }
+    ul { list-style: none; padding: 0; margin: 0; }
     li { display: flex; justify-content: space-between; align-items: center;
-         background:#fff; border:1px solid #ddd; padding:8px; margin:6px 0; border-radius:6px; }
-    .totale { font-size: 1.2rem; text-align: right; margin-top: 12px; }
-    .hint { color:#666; font-size:.9rem; }
+         background:#fff; border:1px solid #ddd; padding:10px; margin:6px 0; border-radius:8px; }
+    .total { text-align: right; margin-top: 12px; font-weight: bold; }
   </style>
 </head>
 <body>
   <h1>Contacalorie</h1>
 
-  <!-- FORM: così funziona anche con Invio -->
-  <form id="form" class="riga" autocomplete="off">
-    <input id="campoAlimento" type="text" placeholder="Alimento (es. Riso 100g)" required />
-    <input id="campoKcal" type="text" placeholder="kcal (es. 250 o 250,5)" required />
-    <button id="btnAggiungi" type="submit">Aggiungi</button>
+  <form id="form" class="row" autocomplete="off">
+    <input id="food" placeholder="Alimento (es. Riso 100g)" required />
+    <input id="kcal" placeholder="kcal (es. 250 o 250,5)" required />
+    <button type="submit">Aggiungi</button>
   </form>
-  <p class="hint">Tip: puoi scrivere le calorie con virgola o punto.</p>
 
-  <ul id="listaVoci"></ul>
-  <div class="totale">Totale: <span id="totKcal">0</span> kcal</div>
+  <ul id="list"></ul>
+  <div class="total">Totale: <span id="tot">0</span> kcal</div>
 
   <script>
-    (function () {
-      const $ = s => document.querySelector(s);
-      const CHIAVE = "contacalorieSemplice";
+    const key = "contacalorie";
+    const form = document.getElementById("form");
+    const food = document.getElementById("food");
+    const kcal = document.getElementById("kcal");
+    const list = document.getElementById("list");
+    const tot  = document.getElementById("tot");
 
-      const lista   = $("#listaVoci");
-      const alimento = $("#campoAlimento");
-      const kcal     = $("#campoKcal");
-      const totKcal  = $("#totKcal");
-      const form     = $("#form");
+    let items = JSON.parse(localStorage.getItem(key) || "[]");
 
-      // Carico in sicurezza dal localStorage
-      let voci = [];
-      try { voci = JSON.parse(localStorage.getItem(CHIAVE) || "[]"); }
-      catch { voci = []; }
+    function save() {
+      localStorage.setItem(key, JSON.stringify(items));
+      render();
+    }
 
-      function salva() {
-        try { localStorage.setItem(CHIAVE, JSON.stringify(voci)); } catch {}
-        disegna();
-      }
-
-      // Accetta "250", "250.5", "250,5"
-      function parseKcal(str) {
-        if (typeof str !== "string") return NaN;
-        const cleaned = str.replace(",", ".").trim();
-        const val = Number(cleaned);
-        return Number.isFinite(val) ? Math.round(val) : NaN; // arrotondo all'intero
-      }
-
-      function totale() {
-        return voci.reduce((acc, v) => acc + v.kcal, 0);
-      }
-
-      function disegna() {
-        lista.innerHTML = "";
-        voci.forEach((v, i) => {
-          const li = document.createElement("li");
-          li.textContent = `${v.alimento} — ${v.kcal} kcal`;
-
-          const btnX = document.createElement("button");
-          btnX.type = "button";
-          btnX.textContent = "❌";
-          btnX.addEventListener("click", () => {
-            voci.splice(i, 1);
-            salva();
-          });
-
-          li.appendChild(btnX);
-          lista.appendChild(li);
-        });
-        totKcal.textContent = totale();
-      }
-
-      // Unico entry-point: submit del form (click o Invio)
-      form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const a = alimento.value.trim();
-        const k = parseKcal(kcal.value);
-        if (!a || !Number.isFinite(k) || k < 0) return;
-
-        voci.push({ alimento: a, kcal: k });
-        form.reset();
-        salva();
+    function render() {
+      list.innerHTML = "";
+      items.forEach((x, i) => {
+        const li = document.createElement("li");
+        li.textContent = `${x.a} — ${x.k} kcal`;
+        const del = document.createElement("button");
+        del.textContent = "❌";
+        del.onclick = () => { items.splice(i, 1); save(); };
+        li.appendChild(del);
+        list.appendChild(li);
       });
+      tot.textContent = items.reduce((s, x) => s + x.k, 0);
+    }
 
-      disegna();
-    })();
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      const a = food.value.trim();
+      const k = Math.round(Number(kcal.value.replace(",", ".")));
+      if (!a || !Number.isFinite(k) || k < 0) return;
+      items.push({ a, k });
+      form.reset();
+      save();
+    };
+
+    render();
   </script>
 </body>
 </html>
