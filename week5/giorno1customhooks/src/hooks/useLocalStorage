@@ -1,0 +1,20 @@
+import { useState, useEffect } from "react";
+
+// Custom hook: salva e legge dati dal localStorage
+function useLocalStorage(key, initialValue) {
+  // Stato iniziale: prendi dal localStorage se c’è già qualcosa, sennò usa initialValue
+  const [value, setValue] = useState(() => {
+    const salvato = localStorage.getItem(key);
+    return salvato ? JSON.parse(salvato) : initialValue;
+  });
+
+  // Ogni volta che value cambia → aggiorna localStorage
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [key, value]);
+
+  // Ritorna sia il valore che la funzione per aggiornarlo
+  return [value, setValue];
+}
+
+export default useLocalStorage;
