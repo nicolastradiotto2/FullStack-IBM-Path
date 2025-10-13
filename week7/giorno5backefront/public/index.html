@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gestione Prodotti (JS + Mongo)</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Gestione Prodotti</h1>
+
+  <!-- REGISTRAZIONE -->
+  <div class="box">
+    <h2>Registrati</h2>
+    <input id="regUser" placeholder="Username">
+    <input id="regPass" type="password" placeholder="Password">
+    <button id="btnRegister">Registrati</button>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="box">
+    <h2>Login</h2>
+    <input id="loginUser" placeholder="Username">
+    <input id="loginPass" type="password" placeholder="Password">
+    <button id="btnLogin">Login</button>
+  </div>
+
+  <!-- AREA PRODOTTI -->
+  <div id="areaProdotti" class="box" style="display:none;">
+    <h2>I tuoi prodotti</h2>
+    <div>
+      <input id="nomeProd" placeholder="Nome prodotto">
+      <input id="prezzoProd" type="number" placeholder="Prezzo">
+      <button id="btnAggiungi">Aggiungi</button>
+    </div>
+    <ul id="lista"></ul>
+    <button id="btnLogout">Logout</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
