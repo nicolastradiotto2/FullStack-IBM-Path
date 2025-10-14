@@ -13,7 +13,7 @@ app.use(cors({
   origin: [
     'http://localhost:4000',   
     'http://localhost:5500',   
-    'https://full-stack-ibm-path-6ezx.vercel.app' 
+    'https://full-stack-ibm-path-77jx.vercel.app' 
   ],
   credentials: true
 }));

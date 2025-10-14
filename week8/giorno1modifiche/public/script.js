@@ -1,6 +1,9 @@
 // script.js
 // Collega il frontend al backend Express
-const API = "http://localhost:4000/api/v1";
+const API = location.hostname.endsWith("vercel.app")
+  ? "https://full-stack-ibm-path-6ezx.onrender.com/api/v1"  // backend online
+  : "http://localhost:4000/api/v1"; // per test locale
+
 let token = localStorage.getItem("token");
 
 // Riferimenti HTML
