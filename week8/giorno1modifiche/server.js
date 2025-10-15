@@ -8,35 +8,38 @@ const { notFound, errorHandler } = require("./middleware/error");
 
 const app = express();
 
-// CORS dinamico (accetta localhost e tutti i subdomini Vercel che iniziano per "full-stack-ibm-path")
+
+const cors = require("cors");
+
+
 const baseAllow = new Set([
   "http://localhost:4000",
   "http://localhost:5500",
 ]);
 
 function isAllowedOrigin(origin) {
-  if (!origin) return true; // Postman/cURL
+  if (!origin) return true;                 // Postman/cURL
   if (baseAllow.has(origin)) return true;
   try {
     const u = new URL(origin);
     return u.hostname.endsWith(".vercel.app") && u.hostname.startsWith("full-stack-ibm-path");
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 }
 
 const corsOptions = {
-  origin: (origin, cb) => {
-    const ok = isAllowedOrigin(origin);
-    return ok ? cb(null, true) : cb(new Error("Not allowed by CORS"));
-  },
+  origin: (origin, cb) => cb(null, isAllowedOrigin(origin)),
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
   optionsSuccessStatus: 200,
 };
 
+
 app.use(cors(corsOptions));
+
+app.options("/api/*", cors(corsOptions));
+app.options("/api/v1/*", cors(corsOptions));  
+
 
 
 app.use(express.json());
