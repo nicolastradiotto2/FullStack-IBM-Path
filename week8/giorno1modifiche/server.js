@@ -8,38 +8,36 @@ const { notFound, errorHandler } = require("./middleware/error");
 
 const app = express();
 
-
+// =============================
+// ✅ CORS DEFINITIVO
+// =============================
 const allowedOrigins = [
-  "http://localhost:4000",    // test locale
-  "http://localhost:5500",    // Live Server locale
-  "https://full-stack-ibm-path-6ezx.vercel.app", // dominio precedente Vercel
-  "https://full-stack-ibm-path-77jx-htgoshngs-nicola-stradiottos-projects.vercel.app" // dominio attuale Vercel
+  "http://localhost:4000",
+  "http://localhost:5500",
+  "https://full-stack-ibm-path-6ezx.vercel.app",
+  "https://full-stack-ibm-path-77jx-htgoshngs-nicola-stradiottos-projects.vercel.app"
 ];
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.header("Access-Control-Allow-Origin", origin);
-  }
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Se non c’è origin (es. Postman) o è nella lista, consenti
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log("❌ CORS bloccato per:", origin);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+  optionsSuccessStatus: 200 // evita problemi con browser vecchi
+};
 
-  // metodi permessi
-  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-  // header permessi
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  // se in futuro serviranno cookie o token con credenziali
-  res.header("Access-Control-Allow-Credentials", "true");
-
-
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-
-  next();
-});
+app.use(cors(corsOptions));
 
 
 app.use(express.json());
-
 
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 
@@ -47,10 +45,7 @@ app.get("/api/health", (req, res) => res.json({ ok: true }));
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/products", productRoutes);
 
-
 app.use(express.static("public"));
-
-
 app.get("/", (req, res) => {
   res.send("✅ Server funzionante + MongoDB connesso!");
 });
@@ -58,6 +53,7 @@ app.get("/", (req, res) => {
 
 app.use(notFound);
 app.use(errorHandler);
+
 
 const PORT = process.env.PORT || 4000;
 
@@ -68,6 +64,6 @@ connectDB(process.env.MONGO_URI)
     );
   })
   .catch((err) => {
-    console.error("❌ Errore di connessione al DB:", err.message);
+    console.error("❌ Errore connessione DB:", err.message);
     process.exit(1);
   });
