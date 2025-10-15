@@ -8,17 +8,14 @@ const { notFound, errorHandler } = require("./middleware/error");
 
 const app = express();
 
-
-const cors = require("cors");
-
-
+/* === CORS dinamico: localhost + qualsiasi subdomain Vercel che inizi con "full-stack-ibm-path" === */
 const baseAllow = new Set([
   "http://localhost:4000",
   "http://localhost:5500",
 ]);
 
 function isAllowedOrigin(origin) {
-  if (!origin) return true;                 // Postman/cURL
+  if (!origin) return true; // Postman/cURL
   if (baseAllow.has(origin)) return true;
   try {
     const u = new URL(origin);
@@ -27,34 +24,36 @@ function isAllowedOrigin(origin) {
 }
 
 const corsOptions = {
-  origin: (origin, cb) => cb(null, isAllowedOrigin(origin)),
+  origin: (origin, cb) => (isAllowedOrigin(origin) ? cb(null, true) : cb(new Error("Not allowed by CORS"))),
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
   optionsSuccessStatus: 200,
 };
 
-
+// CORS PRIMA DI TUTTO + preflight per Express 5 (no "*")
 app.use(cors(corsOptions));
-
 app.options("/api/*", cors(corsOptions));
-app.options("/api/v1/*", cors(corsOptions));  
-
-
+app.options("/api/v1/*", cors(corsOptions));
 
 app.use(express.json());
 
+// Healthcheck
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 
+// API
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/products", productRoutes);
 
+// Static (solo per test locale)
 app.use(express.static("public"));
-app.get("/", (req, res) => res.send("✅ Server funzionante + MongoDB connesso!"));
+app.get("/", (_req, res) => res.send("✅ Server funzionante + MongoDB connesso!"));
 
+// Errori
 app.use(notFound);
 app.use(errorHandler);
 
+// Avvio
 const PORT = process.env.PORT || 4000;
 connectDB(process.env.MONGO_URI)
   .then(() => app.listen(PORT, () => console.log(`🌍 Server attivo su http://localhost:${PORT}`)))
