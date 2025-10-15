@@ -1,63 +1,48 @@
 require("dotenv").config();
 const express = require("express");
-const cors = require("cors");
 const connectDB = require("./config/dbconnection");
-const authRoutes = require("./routes/auth.routes");
+const authRoutes = require("./routes/auth.routes");     
 const productRoutes = require("./routes/product.routes");
 const { notFound, errorHandler } = require("./middleware/error");
 
 const app = express();
 
-/* === CORS dinamico: localhost + qualsiasi subdomain Vercel che inizi con "full-stack-ibm-path" === */
-const baseAllow = new Set([
-  "http://localhost:4000",
-  "http://localhost:5500",
-]);
 
-function isAllowedOrigin(origin) {
-  if (!origin) return true; // Postman/cURL
-  if (baseAllow.has(origin)) return true;
-  try {
-    const u = new URL(origin);
-    return u.hostname.endsWith(".vercel.app") && u.hostname.startsWith("full-stack-ibm-path");
-  } catch { return false; }
-}
-
-const corsOptions = {
-  origin: (origin, cb) => (isAllowedOrigin(origin) ? cb(null, true) : cb(new Error("Not allowed by CORS"))),
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-  optionsSuccessStatus: 200,
-};
-
-// CORS PRIMA DI TUTTO + preflight per Express 5 (no "*")
-app.use(cors(corsOptions));
-app.options("/api/*", cors(corsOptions));
-app.options("/api/v1/*", cors(corsOptions));
+app.use((req, res, next) => {
+  const origin = req.headers.origin || "*";
+  res.header("Access-Control-Allow-Origin", origin);
+  res.header("Vary", "Origin");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.header(
+    "Access-Control-Allow-Headers",
+    req.headers["access-control-request-headers"] || "Content-Type, Authorization"
+  );
+  if (req.method === "OPTIONS") return res.sendStatus(204); 
+  next();
+});
 
 app.use(express.json());
 
-// Healthcheck
-app.get("/api/health", (req, res) => res.json({ ok: true }));
 
-// API
-app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/products", productRoutes);
+app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
-// Static (solo per test locale)
+
+app.use("/api/v1/auth", authRoutes);          
+app.use("/api/v1/products", productRoutes);  
+
+
 app.use(express.static("public"));
-app.get("/", (_req, res) => res.send("✅ Server funzionante + MongoDB connesso!"));
+app.get("/", (_req, res) => res.send("✅ Server up, CORS aperto, nessuna autenticazione."));
 
-// Errori
+
 app.use(notFound);
 app.use(errorHandler);
 
-// Avvio
 const PORT = process.env.PORT || 4000;
 connectDB(process.env.MONGO_URI)
-  .then(() => app.listen(PORT, () => console.log(`🌍 Server attivo su http://localhost:${PORT}`)))
+  .then(() => app.listen(PORT, () => console.log(`🌍 Server on http://localhost:${PORT}`)))
   .catch((err) => {
-    console.error("❌ Errore connessione DB:", err.message);
+    console.error("DB connect error:", err.message);
     process.exit(1);
   });
