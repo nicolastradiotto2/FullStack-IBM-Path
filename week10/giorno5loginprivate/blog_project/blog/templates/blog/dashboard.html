@@ -1,0 +1,27 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Dashboard</h2>
+
+    <form action="{% url 'logout' %}" method="post" class="d-inline">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Logout</button>
+    </form>
+  </div>
+
+  <form method="post" class="card p-3 mb-4 shadow-sm">
+    {% csrf_token %}
+    <input type="text" name="titolo" placeholder="Titolo" class="form-control mb-2" required>
+    <textarea name="contenuto" placeholder="Scrivi qualcosa..." class="form-control mb-2" rows="4" required></textarea>
+    <button type="submit" class="btn btn-success w-100">Pubblica</button>
+  </form>
+
+  {% for post in posts %}
+    <div class="card p-3 mb-3">
+      <h5>{{ post.titolo }}</h5>
+      <p>{{ post.contenuto }}</p>
+      <small>Pubblicato il {{ post.data_creazione|date:"d/m/Y H:i" }}</small>
+    </div>
+  {% empty %}
+    <p class="text-center text-muted">Ancora nessun post</p>
+  {% endfor %}
+</div>
